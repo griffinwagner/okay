@@ -49,7 +49,7 @@ module.exports = function(passport,user){
         console.log('body:', body); // Print the HTML for the Google homepage.
         var diditwork = body.indexOf(sessCode);
         console.log(diditwork);
-        if (diditwork>0) {
+        if (diditwork > 1) {
           var generateHash = function(password) {
           return bCrypt.hashSync(password, bCrypt.genSaltSync(8), null);
           };
@@ -88,9 +88,7 @@ module.exports = function(passport,user){
 
 
         });
-      } else {
-        console.log("You fucked it up");
-      }
+        }
 
       });
 
