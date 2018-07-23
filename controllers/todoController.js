@@ -12,6 +12,9 @@ module.exports = function(app, db, passport) {
       // console.log(results);
       res.render('todo', {todos: results, user:req.user} );
     });
+    var sessData = req.session;
+
+    console.log(sessData.link);
   });
 
   // posting data
@@ -81,6 +84,8 @@ module.exports = function(app, db, passport) {
         });
 
       });
+
+      // Math and Physics Voting (MP)
 
 
 

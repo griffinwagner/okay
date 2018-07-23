@@ -50,6 +50,8 @@ module.exports = function(passport,user){
         var diditwork = body.indexOf(sessCode);
         console.log(diditwork);
         if (diditwork > 1) {
+          var sessData = req.session;
+          sessData.link = link;
           var generateHash = function(password) {
           return bCrypt.hashSync(password, bCrypt.genSaltSync(8), null);
           };
@@ -117,7 +119,8 @@ module.exports = function(passport,user){
   },
 
   function(req, link, password, done) {
-
+    var sessData = req.session;
+    sessData.link = link;
     var User = user;
 
     var isValidPassword = function(userpass,password){

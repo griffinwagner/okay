@@ -30,6 +30,7 @@
     </div>
     <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
       <div class="panel-body">
+        hello
       </div>
     </div>
   </div>
@@ -37,8 +38,12 @@
     <div class="panel-heading" role="tab" id="headingTwo">
       <h4 class="panel-title">
         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-          Chemistry And Biology
-        </a>
+          <% var MPnominees = ["Richard Muller", "Alon Amit", "Viktor T Toth"] %>
+              <% for (var i = 0; i < MPnominees.length; i++) { %>
+                       <li> <a href="mpvote/<%=MPnominees[i]%>"> <%=MPnominees[i]%> </a> </li>
+
+              <%}%>
+          </a>
       </h4>
     </div>
     <div id="collapseTwo" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
