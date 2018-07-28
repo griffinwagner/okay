@@ -40,59 +40,124 @@ module.exports = function(passport,user){
 
     function(req, link, password, done){
 
+
       var sessCode = req.session.code;
+      console.log('||||||||||||||||||||||||||||||||||||||||||||||');
+      var dash = link.indexOf("-", link.indexOf("-") + 1);
+      var numAfterDash = link.substring(dash+1)
+      console.log(numAfterDash);
+      var parsedNumAfterDash = parseInt(numAfterDash);
+      console.log(parsedNumAfterDash);
+      console.log(typeof parsedNumAfterDash);
       console.log("Our Code Is " + sessCode);
+      var item = link;
+      if (item.indexOf('share') == -1 && item.substring(0,30)=='https://www.quora.com/profile/')  {
+        if (link == 'https://www.quora.com/profile/'+req.body.firstname+'-'+req.body.lastname+'-'+parsedNumAfterDash && typeof(parsedNumAfterDash)== 'number') {
+          request(link, function (error, response, body) {
+            console.log('error:', error); // Print the error if one occurred
+            console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+            console.log('body:', body); // Print the HTML for the Google homepage.
+            var diditwork = body.indexOf(sessCode);
+            console.log(diditwork);
+            if (diditwork > 1) {
+              var sessData = req.session;
+              sessData.link = link;
+              var generateHash = function(password) {
+              return bCrypt.hashSync(password, bCrypt.genSaltSync(8), null);
+              };
 
-      request(link, function (error, response, body) {
-        console.log('error:', error); // Print the error if one occurred
-        console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-        console.log('body:', body); // Print the HTML for the Google homepage.
-        var diditwork = body.indexOf(sessCode);
-        console.log(diditwork);
-        if (diditwork > 1) {
-          var sessData = req.session;
-          sessData.link = link;
-          var generateHash = function(password) {
-          return bCrypt.hashSync(password, bCrypt.genSaltSync(8), null);
-          };
+               User.findOne({where: {link:link}}).then(function(user){
 
-           User.findOne({where: {link:link}}).then(function(user){
-
-          if(user)
-          {
-            return done(null, false,req.flash('signupmessage', 'Link taken.') );
-          }
-
-          else
-          {
-            var userPassword = generateHash(password);
-            var data =
-            { link:link,
-            password:userPassword,
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
-            };
-
-
-            User.create(data).then(function(newUser,created){
-              if(!newUser){
-                return done(null,false);
+              if(user)
+              {
+                return done(null, false,req.flash('signupmessage', 'Link taken.') );
               }
 
-              if(newUser){
-                return done(null,newUser);
+              else
+              {
+                var userPassword = generateHash(password);
+                var data =
+                { link:link,
+                password:userPassword,
+                firstname: req.body.firstname,
+                lastname: req.body.lastname,
+                };
 
+
+                User.create(data).then(function(newUser,created){
+                  if(!newUser){
+                    return done(null,false);
+                  }
+
+                  if(newUser){
+                    return done(null,newUser);
+
+                  }
+
+
+                });
               }
 
 
             });
-          }
+            }
+
+          });
+        } else if (link == 'https://www.quora.com/profile/'+req.body.firstname+'-'+req.body.lastname && numAfterDash== link){
+          request(link, function (error, response, body) {
+            console.log('error:', error); // Print the error if one occurred
+            console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+            console.log('body:', body); // Print the HTML for the Google homepage.
+            var diditwork = body.indexOf(sessCode);
+            console.log(diditwork);
+            if (diditwork > 1) {
+              var sessData = req.session;
+              sessData.link = link;
+              var generateHash = function(password) {
+              return bCrypt.hashSync(password, bCrypt.genSaltSync(8), null);
+              };
+
+               User.findOne({where: {link:link}}).then(function(user){
+
+              if(user)
+              {
+                return done(null, false,req.flash('signupmessage', 'Link taken.') );
+              }
+
+              else
+              {
+                var userPassword = generateHash(password);
+                var data =
+                { link:link,
+                password:userPassword,
+                firstname: req.body.firstname,
+                lastname: req.body.lastname,
+                };
 
 
-        });
+                User.create(data).then(function(newUser,created){
+                  if(!newUser){
+                    return done(null,false);
+                  }
+
+                  if(newUser){
+                    return done(null,newUser);
+
+                  }
+
+
+                });
+              }
+
+
+            });
+            }
+
+          });
+
         }
 
-      });
+      }
 
 
 

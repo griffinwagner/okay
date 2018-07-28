@@ -3,43 +3,18 @@ const express = require('express');
 
 module.exports = function(app, db, passport) {
   // reading data
-  app.get('/todo', isLoggedIn, function(req, res) {
+  app.get('/', isLoggedIn, function(req, res) {
     console.log('we reading');
     console.log(req.user);
-    let sql = 'SELECT * FROM todoItems WHERE userID = '+ req.user.id+';';
+    let sql = 'SELECT * FROM users WHERE link = "'+ req.user.link+'";';
     db.query(sql, (err, results) => {
       if (err) throw err;
       // console.log(results);
-      res.render('todo', {todos: results, user:req.user} );
+      res.render('todo', {userData: results, user:req.user} );
     });
     var sessData = req.session;
 
     console.log(sessData.link);
-  });
-
-  // posting data
-  app.post('/todo', function(req, res){
-    console.log('we posting');
-    let item = req.body;
-    console.log(item);
-    item['userID'] = req.user.id;
-    let sql = 'INSERT INTO todoItems SET ?';
-    let query = db.query(sql, item, (err, result) => {
-      if (err) throw err;
-      console.log(result);
-      res.json(result);
-    });
-  });
-
-  // destroying data
-  app.delete('/todo/:id', function(req, res) {
-    console.log('we deleting');
-    let sql =`DELETE FROM todoItems WHERE id = ${req.params.id};`;
-    db.query(sql, (err, result) => {
-      if (err) throw err;
-      console.log(result);
-      res.json(result);
-    });
   });
 
   // display sign up
@@ -52,12 +27,12 @@ module.exports = function(app, db, passport) {
     var sessData = req.session;
     sessData.code =  total;
     console.log(total);
-    res.render('signup', {message: req.flash('signupmessage'), secretcode: total});
+    res.render('createAccount', {message: req.flash('signupmessage'), secretcode: total});
     return total;
   });
 // handling signup form
   app.post('/signup', passport.authenticate('local-signup',  {
-     successRedirect: '/todo',
+     successRedirect: '/',
      failureRedirect: '/signup'}
    )
   );
@@ -65,14 +40,14 @@ module.exports = function(app, db, passport) {
   //displaying sign in
   app.get('/signin', function(req,res){
 
-	   res.render('signin',  {message: req.flash('loginMessage')});
+	   res.render('signin',  {message: req.flash('signinMessage')});
 
    });
 
    // halding sign in form
 
    app.post('/signin', passport.authenticate('local-signin',  {
-      successRedirect: '/todo',
+      successRedirect: '/',
       failureRedirect: '/signin'}
      )
    );
@@ -86,6 +61,78 @@ module.exports = function(app, db, passport) {
       });
 
       // Math and Physics Voting (MP)
+      app.post('/mpvote', isLoggedIn, function(req, res) {
+        console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        var sessData = req.session;
+
+        console.log(sessData.link);
+        console.log(req.body.vote);
+        let sql = `UPDATE users SET MPvote = '` + req.body.vote +`' WHERE link ='` + sessData.link +`';`;
+        console.log(sql);
+        db.query(sql, (err, result)=> {
+          console.log(result);
+        })
+        let sql2 = 'SELECT * FROM users WHERE link ="'+sessData.link + '";';
+        db.query(sql2, (err, result)=> {
+          console.log(result);
+          res.render('todo', {user:{link:sessData.link}, userData:result})
+        })
+      })
+
+      // Chem and Bio Voting (CB)
+      app.post('/cbvote', isLoggedIn, function(req, res) {
+        console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        var sessData = req.session;
+
+        console.log(sessData.link);
+        console.log(req.body.vote);
+        let sql = `UPDATE users SET CBvote = '` + req.body.vote +`' WHERE link ='` + sessData.link +`';`;
+        console.log(sql);
+        db.query(sql, (err, result)=> {
+          console.log(result);
+        })
+        let sql2 = 'SELECT * FROM users WHERE link ="'+sessData.link + '";';
+        db.query(sql2, (err, result)=> {
+          console.log(result);
+          res.render('todo', {user:{link:sessData.link}, userData:result})
+        })
+      })
+
+      // IT voting (IT)
+      app.post('/itvote', isLoggedIn, function(req, res) {
+        console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        var sessData = req.session;
+
+        console.log(sessData.link);
+        console.log(req.body.vote);
+        let sql = `UPDATE users SET ITvote = '` + req.body.vote +`' WHERE link ='` + sessData.link +`';`;
+        console.log(sql);
+        db.query(sql, (err, result)=> {
+          console.log(result);
+        })
+        let sql2 = 'SELECT * FROM users WHERE link ="'+sessData.link + '";';
+        db.query(sql2, (err, result)=> {
+          console.log(result);
+          res.render('todo', {user:{link:sessData.link}, userData:result})
+        })
+      })
+
+      app.get('/admin', function (req, res) {
+
+          res.render('admin')
+
+      })
+
+      app.get('/vote/:category', function (req, res) {
+        console.log('We checking');
+        console.log(req.params.category);
+        let sql = `SELECT DISTINCT ${req.params.category} as title, count(${req.params.category}) AS count FROM users GROUP BY ${req.params.category} HAVING COUNT >= 1;`;
+        db.query(sql, (err, result)=> {
+          console.log(result);
+          res.render('categoryStats', {vote:result})
+        })
+      })
+
 
 
 
